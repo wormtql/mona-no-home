@@ -24,8 +24,15 @@ jobs:
       uses: easingthemes/ssh-deploy@main
       env:
         SSH_PRIVATE_KEY: ${{ secrets.MONA_SSH_KEY }}
-        SOURCE: target/release/main
+        SOURCE: "target/release/main,Rocket."
         REMOTE_HOST: ${{ secrets.MONA_REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.MONA_REMOTE_USER }}
         TARGET: ${{ format('{0}{1}', secrets.MONA_WORKING_DIR, 'main') }}
-        
+    - name: Restart service
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.MONA_REMOTE_HOST }}
+        username: ${{ secrets.MONA_REMOTE_USER }}
+        key: ${{ secrets.MONA_SSH_KEY }}
+        script: |
+          ${{ format('{0}{1}', secrets.MONA_WORKING_DIR, 'deploy.sh') }}

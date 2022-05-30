@@ -40,8 +40,9 @@ fn rocket() -> _ {
     // write_result_to_redis(&result);
 
     let database_url = env::var("DATABASE_URL").expect("`DATABASE_URL` env is required");
+    let rocket_toml = include_str!("../../Rocket.toml");
     let figment = rocket::Config::figment()
-        .merge(Toml::file("Rocket.toml").nested())
+        .merge(Toml::string(&rocket_toml).nested())
         .merge(("databases", map!["mona_db" => map!["url" => database_url]]));
 
 
