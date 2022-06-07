@@ -1,24 +1,26 @@
-#[macro_use] extern crate rocket;
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate diesel_migrations;
+#[macro_use] extern crate rocket;
 
 use std::collections::HashMap;
+use std::env;
+
+use chrono::Duration;
 use dotenv::dotenv;
-use figment::providers::{Toml, Format};
+use figment::Figment;
+use figment::providers::{Format, Toml};
+use figment::util::map;
 use rocket::Config;
-use mona_no_home::db_pool;
-use mona_no_home::routes;
-// use diesel_migrations::embed_migrations;
+use rocket::http::Method;
+use rocket_cors::{AllowedHeaders, AllowedMethods, AllowedOrigins, CorsOptions};
+use serde::Deserialize;
+
 use mona_no_home::common::utils::get_pg_connection;
+use mona_no_home::db_pool;
+use mona_no_home::fairings::cleanup_expired_repo::CleanupExpiredRepo;
 use mona_no_home::fairings::schedule_analysis::ScheduleAnalysisFairing;
 use mona_no_home::result_analysis::{get_analysis_result, write_result_to_redis};
-// use diesel_migrations::EmbedMigrations;
-use figment::Figment;
-use serde::Deserialize;
-use figment::util::map;
-use std::env;
-use chrono::Duration;
-use mona_no_home::fairings::cleanup_expired_repo::CleanupExpiredRepo;
+use mona_no_home::routes;
 use mona_no_home::state::create_repo_count::CreateRepoCount;
 
 embed_migrations!();
@@ -48,6 +50,15 @@ fn rocket() -> _ {
         .merge(Toml::string(&rocket_toml).nested())
         .merge(("databases", map!["mona_db" => map!["url" => database_url]]));
 
+    // let cors = CorsOptions {
+    //     allowed_origins: AllowedOrigins::All,
+    //     // allowed_methods: AllowedMethods::,
+    //     allowed_methods: vec![Method::Get, Method::Post].into_iter().map(From::from).collect(),
+    //     allowed_headers: AllowedHeaders::All,
+    //     allow_credentials: true,
+    //
+    //     ..Default::default()
+    // }.to_cors()?;
 
     rocket::custom(figment)
         .attach(db_pool::DBConn::fairing())

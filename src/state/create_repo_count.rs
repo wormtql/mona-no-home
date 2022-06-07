@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::net::SocketAddr;
+use std::net::{IpAddr, SocketAddr};
 use std::sync::RwLock;
 use chrono::{DateTime, Duration, Utc};
 
@@ -7,7 +7,7 @@ pub struct CreateRepoCount {
     pub min_interval: Duration,
     // pub max_time_per_interval: usize,
     // pub count: HashMap<SocketAddr, usize>,
-    pub last_operation: RwLock<HashMap<SocketAddr, DateTime<Utc>>>
+    pub last_operation: RwLock<HashMap<IpAddr, DateTime<Utc>>>
 }
 
 impl CreateRepoCount {
@@ -18,7 +18,7 @@ impl CreateRepoCount {
         }
     }
 
-    pub fn try_ip(&self, addr: SocketAddr) -> bool {
+    pub fn try_ip(&self, addr: IpAddr) -> bool {
         let contains_key = {
             let handle = self.last_operation.read().unwrap();
             handle.contains_key(&addr)

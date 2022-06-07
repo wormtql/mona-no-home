@@ -7,11 +7,18 @@ use crate::models::repo::{NewRepo, Repo, RepoMeta};
 use crate::state::create_repo_count::CreateRepoCount;
 use nanoid::nanoid;
 use rocket::serde::json::Json;
+use crate::guards::my_socket_addr::MyRemoteAddr;
+use crate::responder::CorsResponder;
+
+#[options("/repo/create")]
+pub async fn route_options_create_repo() -> CorsResponder {
+    CorsResponder
+}
 
 #[post("/repo/create", data = "<data>")]
-pub async fn route_create_repo(db: DBConn, remote_addr: SocketAddr, data: String, repo_count: &State<CreateRepoCount>) -> Result<Json<RepoMeta>, String> {
-    println!("{}", remote_addr);
-    if !repo_count.try_ip(remote_addr) {
+pub async fn route_create_repo(db: DBConn, remote_addr: MyRemoteAddr, data: String, repo_count: &State<CreateRepoCount>) -> Result<Json<RepoMeta>, String> {
+    println!("{}", remote_addr.addr);
+    if !repo_count.try_ip(remote_addr.addr) {
         return Err(String::from("请稍后再试"));
     }
 
