@@ -17,6 +17,9 @@ use figment::Figment;
 use serde::Deserialize;
 use figment::util::map;
 use std::env;
+use chrono::Duration;
+use mona_no_home::fairings::cleanup_expired_repo::CleanupExpiredRepo;
+use mona_no_home::state::create_repo_count::CreateRepoCount;
 
 embed_migrations!();
 
@@ -50,8 +53,12 @@ fn rocket() -> _ {
         .attach(db_pool::DBConn::fairing())
         .attach(db_pool::RedisConnFairing)
         .attach(ScheduleAnalysisFairing)
+        .attach(CleanupExpiredRepo)
         .mount("/api", routes::auth::get_routes())
         .mount("/api", routes::feedback::get_routes())
         .mount("/api", routes::compute_result::get_routes())
+        .mount("/api", routes::preset::get_routes())
+        .mount("/api", routes::repo::get_routes())
         .mount("/api", routes![hello_route])
+        .manage(CreateRepoCount::new(Duration::seconds(3)))
 }

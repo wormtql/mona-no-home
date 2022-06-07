@@ -8,7 +8,7 @@ pub struct User {
     pub created: NaiveDateTime,
     pub username: String,
     pub pwhash: String,
-    pub email: Option<String>,
+    pub email: String,
     pub admin: bool,
 }
 
@@ -17,6 +17,6 @@ pub struct User {
 pub struct NewUser {
     pub username: String,
     pub pwhash: String,
-    pub email: Option<String>,
+    pub email: String,
     pub admin: bool
 }

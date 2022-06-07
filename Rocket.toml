@@ -1,2 +1,5 @@
+[global]
+limits = { string = "1 MiB" }
+
 [release]
 address = "0.0.0.0"
