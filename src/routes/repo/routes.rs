@@ -6,6 +6,7 @@ use crate::db_pool::DBConn;
 use crate::models::repo::{NewRepo, Repo, RepoMeta};
 use crate::state::create_repo_count::CreateRepoCount;
 use nanoid::nanoid;
+use rocket::http::Status;
 use rocket::serde::json::Json;
 use crate::guards::my_socket_addr::MyRemoteAddr;
 use crate::responder::CorsResponder;
@@ -48,7 +49,7 @@ pub async fn route_create_repo(db: DBConn, remote_addr: MyRemoteAddr, data: Stri
 }
 
 #[get("/repo/<code>")]
-pub async fn route_get_and_delete(db: DBConn, code: String) -> Result<Json<Repo>, String> {
+pub async fn route_get_and_delete(db: DBConn, code: String) -> Result<Json<Repo>, rocket::response::status::NotFound<String>> {
     let mut result: Vec<Repo> = match db.run(move |c| -> Result<Vec<Repo>, String> {
         use crate::schema::repo::dsl as r;
         let now = Utc::now();
@@ -65,11 +66,15 @@ pub async fn route_get_and_delete(db: DBConn, code: String) -> Result<Json<Repo>
         Ok(result)
     }).await {
         Ok(v) => v,
-        Err(e) => return Err(e.to_string())
+        // Err(e) => return Err(e.to_string())
+        Err(e) => {
+            println!("error: {}", e);
+            vec![]
+        }
     };
 
     if result.len() == 0 {
-        Err(String::from("不存在"))
+        Err(rocket::response::status::NotFound(String::from("不存在")))
     } else {
         Ok(Json(result.pop().unwrap()))
     }

@@ -33,16 +33,20 @@ impl Fairing for ScheduleAnalysisFairing {
         tokio::spawn(async move {
             loop {
                 interval.tick().await;
-                let analysis = match get_analysis_result() {
-                    Ok(v) => v,
-                    Err(e) => {
-                        println!("schedule analysis error: {}", e);
-                        continue;
-                    }
-                };
 
-                write_result_to_redis(&analysis);
-                println!("successfully write analysis to redis");
+                // to drop memory
+                {
+                    let analysis = match get_analysis_result() {
+                        Ok(v) => v,
+                        Err(e) => {
+                            println!("schedule analysis error: {}", e);
+                            continue;
+                        }
+                    };
+
+                    write_result_to_redis(&analysis);
+                    println!("successfully write analysis to redis");
+                }
             }
         });
 
