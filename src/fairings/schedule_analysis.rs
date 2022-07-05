@@ -24,11 +24,13 @@ impl Fairing for ScheduleAnalysisFairing {
         let mut interval = tokio::time::interval(Duration::from_secs(interval_secs));
 
         // do an initial analysis
-        let a = match get_analysis_result() {
-            Ok(v) => v,
-            Err(_) => return Err(rocket)
-        };
-        write_result_to_redis(&a);
+        {
+            let a = match get_analysis_result() {
+                Ok(v) => v,
+                Err(_) => return Err(rocket)
+            };
+            write_result_to_redis(&a);
+        }
 
         tokio::spawn(async move {
             loop {
