@@ -63,7 +63,7 @@ fn rocket() -> _ {
     rocket::custom(figment)
         .attach(db_pool::DBConn::fairing())
         .attach(db_pool::RedisConnFairing)
-        .attach(ScheduleAnalysisFairing)
+        // .attach(ScheduleAnalysisFairing)
         .attach(CleanupExpiredRepo)
         .mount("/api", routes::auth::get_routes())
         .mount("/api", routes::feedback::get_routes())
