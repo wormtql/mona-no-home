@@ -29,8 +29,8 @@ impl Fairing for ScheduleAnalysisFairing {
     async fn on_ignite(&self, rocket: Rocket<Build>) -> rocket::fairing::Result {
         dotenv().ok();
 
-        // let interval_secs = env::var("DAMAGE_ANALYSIS_INTERVAL").unwrap_or(String::from("86400")).parse::<u64>().unwrap();
-        let interval_secs = 10;
+        let interval_secs = env::var("DAMAGE_ANALYSIS_INTERVAL").unwrap_or(String::from("86400")).parse::<u64>().unwrap();
+        // let interval_secs = 10;
         let mut interval = tokio::time::interval(Duration::from_secs(interval_secs));
 
         // do an initial analysis
