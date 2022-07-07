@@ -14,6 +14,8 @@ use rocket::Config;
 use rocket::http::Method;
 use rocket_cors::{AllowedHeaders, AllowedMethods, AllowedOrigins, CorsOptions};
 use serde::Deserialize;
+#[cfg(not(target_env = "msvc"))]
+use tikv_jemallocator::Jemalloc;
 
 use mona_no_home::common::utils::get_pg_connection;
 use mona_no_home::db_pool;
@@ -24,6 +26,10 @@ use mona_no_home::routes;
 use mona_no_home::state::create_repo_count::CreateRepoCount;
 
 embed_migrations!();
+
+#[cfg(not(target_env = "msvc"))]
+#[global_allocator]
+static GLOBAL: Jemalloc = Jemalloc;
 
 #[get("/hello")]
 fn hello_route() -> String {
@@ -61,9 +67,10 @@ fn rocket() -> _ {
     // }.to_cors()?;
 
     rocket::custom(figment)
+        .manage(CreateRepoCount::new(Duration::seconds(3)))
         .attach(db_pool::DBConn::fairing())
         .attach(db_pool::RedisConnFairing)
-        // .attach(ScheduleAnalysisFairing)
+        .attach(ScheduleAnalysisFairing)
         .attach(CleanupExpiredRepo)
         .mount("/api", routes::auth::get_routes())
         .mount("/api", routes::feedback::get_routes())
@@ -71,5 +78,5 @@ fn rocket() -> _ {
         .mount("/api", routes::preset::get_routes())
         .mount("/api", routes::repo::get_routes())
         .mount("/api", routes![hello_route])
-        .manage(CreateRepoCount::new(Duration::seconds(3)))
+
 }

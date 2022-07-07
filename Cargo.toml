@@ -27,6 +27,9 @@ figment = { version = "0.10", features = ["env", "toml", "json"] }
 nanoid = "0.4.0"
 rocket_cors = "0.5.1"
 
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+tikv-jemallocator = "0.5"
+
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0-rc.1"
 default-features = false

@@ -12,8 +12,10 @@ pub mod result_analysis;
 pub fn get_analysis_result() -> Result<AnalysisResult, Box<dyn Error>> {
     let conn = get_pg_connection()?;
 
-    use crate::schema::compute_result::dsl::*;
-    let all_results: Vec<ComputeResultInDB> = compute_result.load(&conn)?;
+    // use crate::schema::compute_result::dsl::*;
+    use crate::schema::compute_result::dsl as c;
+    // let all_results: Vec<ComputeResultInDB> = compute_result.load(&conn)?;
+    let all_results: Vec<ComputeResultInDB> = c::compute_result.order_by(c::id.desc()).limit(200000).load(&conn)?;
 
     let mut temp: Vec<ComputeResult> = Vec::new();
     for item in all_results.iter() {
