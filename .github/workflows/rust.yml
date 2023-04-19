@@ -19,7 +19,7 @@ jobs:
       with:
         submodules: recursive
     - name: setup target
-      run: rustup component add rust-std-x86_64-unknown-linux-musl && apt-get install musl-gcc
+      run: rustup component add rust-std-x86_64-unknown-linux-musl
     - name: Build
       run: cargo add ring && cargo build --release --bin main --target x86_64-unknown-linux-musl
     - name: Upload to server
