@@ -12,14 +12,16 @@ env:
 jobs:
   build:
 
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+    - name: setup target
+      run: rustup component add rust-std-x86_64-unknown-linux-musl
     - name: Build
-      run: cargo build --release --bin main
+      run: cargo build --release --bin main --target x86_64-unknown-linux-musl
     - name: Upload to server
       uses: easingthemes/ssh-deploy@main
       env:
